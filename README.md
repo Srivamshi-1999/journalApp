@@ -342,3 +342,123 @@ Mastering MongoDB Relationships in Spring Boot: @DBRef Annotation for Seamless C
 
 
 
+--------------------------------
+@Transactional Annotation
+
+above annotation should be used to rollback the operation if any of the DB operation failed for a method for this in Spring Main class should be annotated with 
+@EnableTransactionManagement and implement bean in Main class
+
+@Bean
+    public PlatformTransactionManager add(MongoDatabaseFactory dbFactory){
+        return new MongoTransactionManager(dbFactory);
+    }
+	
+----------------------------------------
+Spring Security and @EnableWebSecurity Annotation
+
+Spring Security is powerful and highly customizable security framework that is often used in SpringBootApplications to handle authentication and authorization
+
+Authentication:
+The process of verifying a users identity ex; username and password
+
+Authorization:
+The process of granting or denying access to specific resources or actions based on the authentication user's roles and permissions
+
+<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+		
+above dependency is used to give security
+
+By default, Spring Security uses HTTP Basic authentication
+
+The client sends an Authorization header
+Authorization:Basic<encoded-string>
+the server decodes the string,extracts username and password, and verifies them.If they are correct,access is granted.Otherwise, an "Unauthorized" response is sent back
+
+Encoding Credentiatls are combined into a string like 
+username:password which is then encoded using Base64
+
+example curl
+curl --request GET \
+  --url http://localhost:8080/journal/Srivamshi \
+  --header 'Authorization: Basic dXNlcjo0NjA0MDFiYy1jNjU2LTRjNjAtOTc2ZS1jNzM2Zjg2YmIxZDE=' \
+  --header 'Content-Type: application/json' \
+  --header 'User-Agent: insomnia/10.1.0' \
+  --cookie JSESSIONID=6F6C8A6FC03D34AAA0AC7EBF71B480DD
+
+By default, all endpoints will be secured.Spring security will generate a default user with a random password that is printed in console logs on startup
+
+We can also configure username & password in application.properties
+spring.security.user.name=user
+spring.security.user.password=password
+
+if just basic secirity is need we can just add above dependency if we need extra security customization we should use @EnableWebSecurity
+
+@EnableWebSecurity:
+
+This annoation signals Spring to enable its web security support This is what makes your application secured.Its used in conjuction with the @Configuration
+
+what ever security config is written with above annoation it should extends with 
+
+WebSecurityConfigurerAdapter:
+It is a utility class in the Spring Security Framework that provides defualt configurations and allows customization of certain features.By extending it, you can configure and customize Spring Security for your application needs.
+Below ths example of config for customizing the springSecurity this can writtern under config package
+@Configuration
+@EnableWebSecurity
+public class SpringSecurity extends WebSecurityConfigurerAdapter {
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http
+                .authorizeRequests()
+                .antMatchers("/hello").permitAll()
+                .anyRequest().authenticated()
+                .and()
+                .formLogin();
+    }
+}
+configure method in WebSecurityConfigurerAdapter provides a way to configure how requests are secured.It defines how request matching should be done and what security actions should be applied
+
+http.authorizeRequests(): This tells Spring Security to start authorizing the requests
+
+.antMatchers("/hello").permitAll(): This part specifies that HTTP request mathing the path /hello should be permitted(allowed) for all users,whether they are authenticated or not.
+
+.anyRequest().authenticated(): This is more general matcher that specifies any request (not already matched by previous matchers) should be authenticated, meaning users have to provide valud credentials to access these endpoints
+
+.and(): This is the method to join several configurations.It helps to continue the configuration from the root(HTTPSecurity)
+
+.formLogin(): This enables form-based authentication.By default, it will provide a form for the user to enter their username and password.If  the user is not authenticated and they try to access the secured endpoint,they will be redirected to the default login form
+
+HTTP basic authentication is stateless
+
+1.Session Creation: 	After sucessful authentication,and HTTP session is formed.Your authentication details are stored in the session
+
+2. Session Cookie: A JSESSIONID cookie is sent to your browser, which gets send back with subsequent requests, helping the server recognize your session
+
+3. SecurityContext: Using the JSESSIONID,spring secrity fetches your authentication deatils for each request
+
+4. Session Timeout: Sessions have a limited life.If you are inactive past this limit,you are logged out.
+
+5. Logout: When logging out, your session ends, and related cookie is removed
+
+6. Remember-me : Spring Security can remember you even after the session ends using a different persistence cookie(typically have alonger lifespan)
+
+In essense,Spring Security leverages sessions and cookies, mainly JSESSIONID, to ensure you remain authentication across the requests
+-------------------------------------------------------------------------------
+We want our spring boot application to authenticate users based on their credentials store in a MongoDB database.
+
+This means that our users and their passwords(hashed) will be stored in MongoDB, and when a user tries to login, the system should check provided credentials against whats stored in the database
+
+To do above below steps need to be implemented
+
+1. A User entity to represent the user data model
+2.A repository UserRepository to interact with MongoDB
+3.UserDetailsService implementation to fecth user details( this object will be present in Spring Security dependency we need to write new Userservice which implements UserDetailsService)
+4.A configuration SecurityCOnfig to integrate everthing with Spring Security
+
+
+
+
+

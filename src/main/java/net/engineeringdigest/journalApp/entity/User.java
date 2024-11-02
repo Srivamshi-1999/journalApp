@@ -25,5 +25,6 @@ public class User {
     private String password;
     @DBRef // DB ref to journal_entries document acts like Forequgn key
     private List<JournalEntry> journalEntries = new ArrayList<>();
+    private  List<String> roles;
 
 }
