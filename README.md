@@ -458,6 +458,9 @@ To do above below steps need to be implemented
 3.UserDetailsService implementation to fecth user details( this object will be present in Spring Security dependency we need to write new Userservice which implements UserDetailsService)
 4.A configuration SecurityCOnfig to integrate everthing with Spring Security
 
+---------------------------------------------------------------------------------------
+Adding Authentication to Journal Endpoints
+
 
 
 
