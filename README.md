@@ -461,6 +461,15 @@ To do above below steps need to be implemented
 ---------------------------------------------------------------------------------------
 Adding Authentication to Journal Endpoints
 
+ Authentication authentication = SecurityContextHolder.getContext().getAuthentication();//This fecthes username and pass from auth
+        String userName = authentication.getName();
+
+this will get the user and password from basic auth
+--------------------------------------------------------------------
+Role Based Authorization in Spring Boot Project:
+
+For the role based authentcation we need to create new controller and add that request mapping in SringSecurity 
+
 
 
 
